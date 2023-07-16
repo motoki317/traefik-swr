@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/motoki317/sc"
@@ -26,8 +27,16 @@ type server struct {
 	cache *sc.Cache[cacheKey, *response]
 }
 
-func New(config *Config) (http.Handler, error) {
+func New(proxyTarget string, config *Config) (http.Handler, error) {
+	targetURL, err := url.Parse(proxyTarget)
+	if err != nil {
+		return nil, fmt.Errorf("invalid proxy target: %v", err)
+	}
 	proxy := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		req.URL.Scheme = targetURL.Scheme
+		req.URL.User = targetURL.User
+		req.URL.Host = targetURL.Host
+
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
