@@ -1,0 +1,10 @@
+displayName: SWR Cache
+type: middleware
+
+import: github.com/motoki317/swr-cache/cmd/traefik
+
+summary: 'Dead simple swr cache'
+
+testData:
+  ttl: 60s
+  grace: 60s
